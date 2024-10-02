@@ -19,14 +19,14 @@ Führen Sie mit folgenden Operanden folgende arithmetische bzw. logische Operati
 
 #### Operationen
 
-| Operanden           | Operation | Ergebnis (Dual) | Ergebnis (Hex) | CF | OF | SF | ZF |
-|---------------------|-----------|-----------------|----------------|----|----|----|----|
-| Operand 1: 8        | ADD       | 0011 1000        | 0x28           | 0  | 0  | 0  | 0  |
-| Operand 2: 20       | SUB       | 1110 1100        | 0xEC           | 1  | 1  | 1  | 0  |
-| Operand 1: -8       | AND       | 0000 1000        | 0x08           | -  | -  | 0  | 0  |
-| Operand 2: 13       | OR        | 1111 1101        | 0xFD           | -  | -  | 1  | 0  |
-| Operand 1: -1       | ADD       | 1111 1110        | 0xFE           | 1  | 0  | 1  | 0  |
-| Operand 2: -1       | XOR       | 0000 0000        | 0x00           | -  | -  | 0  | 1  |
+| Operand 1 | Operand 2 | Operation | Ergebnis (Dual) | Ergebnis (Hex) | CF | OF | SF | ZF |
+|-----------|-----------|-----------|-----------------|----------------|----|----|----|----|
+| 8         | 20        | ADD       | 0011 1000       | 0x28           | 0  | 0  | 0  | 0  |
+| 8         | 20        | SUB       | 1110 1100       | 0xEC           | 1  | 1  | 1  | 0  |
+| -8        | 13        | AND       | 0000 1000       | 0x08           | -  | -  | 0  | 0  |
+| -8        | 13        | OR        | 1111 1101       | 0xFD           | -  | -  | 1  | 0  |
+| -1        | -1        | ADD       | 1111 1110       | 0xFE           | 1  | 0  | 1  | 0  |
+| -1        | -1        | XOR       | 0000 0000       | 0x00           | -  | -  | 0  | 1  |
 
 - **CF (Carry Flag)**: Wird gesetzt, wenn ein Übertrag aus dem höchstwertigen Bit erfolgt (bei Addition) oder ein Übertrag in das höchstwertige Bit erfolgt (bei Subtraktion).
 - **OF (Overflow Flag)**: Wird gesetzt, wenn ein Überlauf auftritt, d.h., wenn das Ergebnis einer Operation nicht in das Zielregister passt.
