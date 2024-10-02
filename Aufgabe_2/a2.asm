@@ -12,22 +12,22 @@ DISPLAY_7 equ 9eh ; Adresse der 7-Segmentanzeige (ganz links)
 
 ;gibt den Text "Hallo" auf der 7-Segmentanzeige aus
 START: 
-    mov lw 0x48 ; H
-    mov wf DISPLAY_0
-    mov lw 0x61 ; a
-    mov wf DISPLAY_1
-    mov lw 0x6c ; l
-    mov wf DISPLAY_2
-    mov lw 0x6c ; l
-    mov wf DISPLAY_3
-    mov lw 0x6f ; o
-    mov wf DISPLAY_4
-    mov lw 0x20 ; Leerzeichen
-    mov wf DISPLAY_5
-    mov lw 0x20 ; Leerzeichen
-    mov wf DISPLAY_6
-    mov lw 0x20 ; Leerzeichen
-    mov wf DISPLAY_7
-    goto START
-    end  
+    mov al, 0x48 ; H
+    mov [DISPLAY_0], al
+    mov al, 0x61 ; a
+    mov [DISPLAY_1], al
+    mov al, 0x6c ; l
+    mov [DISPLAY_2], al
+    mov al, 0x6c ; l
+    mov [DISPLAY_3], al
+    mov al, 0x6f ; o
+    mov [DISPLAY_4], al
+    mov al, 0x20 ; Leerzeichen
+    mov [DISPLAY_5], al
+    mov al, 0x20 ; Leerzeichen
+    mov [DISPLAY_6], al
+    mov al, 0x20 ; Leerzeichen
+    mov [DISPLAY_7], al
+    jmp START
+    
 
