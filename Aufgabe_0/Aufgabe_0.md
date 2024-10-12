@@ -7,7 +7,7 @@
 | 0xFF         | 255     | 0xFF        | 11111111   | 1 Byte         |
 | 0b00110001   | 49      | 0x31        | 00110001   | 1 Byte         |
 | 515          | 515     | 0x203       | 1000000011 | 2 Bytes        |
-|  -2          |  -2     |  0x82       | 10000010   | 1 Byte         |
+|  -2          |  -2     | 0x82        | 10000010   | 1 Byte         |
 
 - **NIBBLE**: Ein Nibble ist eine Gruppe von 4 Bits. Es ist die Hälfte eines Bytes.
 - **WORD**: Ein Word ist eine Gruppe von 16 Bits (2 Bytes). Die Größe eines Words kann jedoch je nach Computerarchitektur variieren.
