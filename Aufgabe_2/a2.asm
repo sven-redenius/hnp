@@ -1,78 +1,57 @@
-; SBC-86 Testprogramm zur Ausgabe auf 7-Segment-Anzeigen und LEDs
+org 100h
+cpu 8086
 
-; Symbolische Konstanten
-SWITCH_PORT    EQU 0x00
-LED_PORT       EQU 0x00
-SEGMENT_PORT_1 EQU 0x90
-SEGMENT_PORT_2 EQU 0x92
+jmp START
 
-; 7-Segment-Darstellungen für Hexadezimalziffern 0-F
-SEGMENT_TABLE:
-    DB 0x3F ; 0
-    DB 0x06 ; 1
-    DB 0x5B ; 2
-    DB 0x4F ; 3
-    DB 0x66 ; 4
-    DB 0x6D ; 5
-    DB 0x7D ; 6
-    DB 0x07 ; 7
-    DB 0x7F ; 8
-    DB 0x6F ; 9
-    DB 0x77 ; A
-    DB 0x7C ; B
-    DB 0x39 ; C
-    DB 0x5E ; D
-    DB 0x79 ; E
-    DB 0x71 ; F
+; Symbolische Konstanten für die Portadressen
+SWITCH_PORT equ 0h
+LED_PORT equ 0h
+SEGMENT_PORT_1 equ 90h
+SEGMENT_PORT_2 equ 92h
 
-START:
-    ; Initialisierung
-    MOV DX, SWITCH_PORT
-    IN AL, DX
-    MOV DX, LED_PORT
-    OUT DX, AL
+; Tabelle für die 7-Segment-Darstellung
+SEGMENT_TABLE db 0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71
 
-    ; Lese Schalterwert
-    MOV DX, SWITCH_PORT
-    IN AL, DX
+START:  IN AL, SWITCH_PORT
 
-    ; Ausgabe auf LEDs
-    MOV DX, LED_PORT
-    OUT DX, AL
+        ; Gib den gelesenen Wert auf den LED-Port aus
+        OUT LED_PORT, AL
 
-    ; Teile den Wert in zwei Nibbles
-    MOV AH, AL
-    SHR AH, 4
-    AND AL, 0x0F
+        ; Extrahiere das obere Nibble
+        MOV AH, AL
+        AND AH, 0x0F
+        PUSH ah ;obere nibble auf stack (TEST)
 
-    ; Addiere die beiden Nibbles
-    ADD AL, AH
+        ; Extrahiere das untere Nibble
+        AND AL, 0xF0
+        MOV CL, 4
+        SHR AL, CL
+        add al, ah
+        out LED_PORT, al
+        mov ah,0
 
-    ; Ausgabe des Ergebnisses auf LEDs
-    MOV DX, LED_PORT
-    OUT DX, AL
+        ;ergebnis aufteilen in nibble
+        ;Stack nutzen um beide Nibble zu erzeugen und in AL zu packen -> Ausgabe nacheinander an 7 Segment Anzeige
+        ; Extrahiere das obere Nibble
+        MOV AH, AL
+        AND AH, 0x0F
 
-    ; Konvertiere das Ergebnis in 7-Segment-Darstellung
-    MOV AH, AL
-    AND AH, 0x0F
-    MOV BX, SEGMENT_TABLE
-    MOV BL, AH
-    MOV AH, [BX]
+        ; Extrahiere das untere Nibble
+        AND AL, 0xF0
+        MOV CL, 4
+        SHR AL, CL
 
-    ; Ausgabe auf 7-Segment-Anzeigen
-    MOV DX, SEGMENT_PORT_1
-    OUT DX, AH
+        ;nibbleweise ausgeben auf 7seg
+        MOV BX, SEGMENT_TABLE
+        add bx, ax
+        mov al, [bx]
+        OUT SEGMENT_PORT_1, al
 
-    ; Nächstes Nibble
-    SHR AL, 4
-    MOV BL, AL
-    MOV AH, [BX]
+        SHR AX, CL
+        MOV BX, SEGMENT_TABLE
+        add bx, ax
+        mov al, [bx]
+        OUT SEGMENT_PORT_2, al
 
-    ; Ausgabe auf 7-Segment-Anzeigen
-    MOV DX, SEGMENT_PORT_2
-    OUT DX, AH
-
-    ; Endlosschleife
-    JMP START
-
-END START
+        ; Endlosschleife
+        JMP START
