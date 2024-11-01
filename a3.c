@@ -33,12 +33,12 @@ gcc -Wall -Wextra -pedantic -o a3 a3.c
  */
 void memdump(unsigned char *string, int zeilen) {
     // Header ausgeben
-    printf("ADDR \t \t00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n");
+    printf("\033[31mADDR \t \t00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n");
     
     // Über jede Zeile iterieren
     for (int i = 0; i < zeilen * 16; i += 16) {
         // Speicheradresse ausgeben
-        printf("%p\t", (void *)(string + i));
+        printf("\033[0m%p\t", (void *)(string + i));
         
         // Hexadezimale Werte des Speicherinhalts ausgeben
         for (int j = 0; j < 16; j++) {
