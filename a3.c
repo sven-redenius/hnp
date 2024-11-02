@@ -1,26 +1,28 @@
 /**
  * @file a3.c
- * Sie haben bei der Arbeit mit dem SBC-Debugger ein Speicherabbild (Memorydump) zur Programmanalyse kennengelernt. Eine vergleichbare Funktionalität wollen wir nun auf dem PC zur Ausgabe eines Speicherabbildes auf der Konsole realisieren.
-
-Schreiben Sie hierzu ein Programm mit einer C-Funktion, die als Parameter einen Zeiger auf “unsigned char” sowie die Anzahl der auszugebenden Zeilen (zu je 16 Zeichen) erhält. Der Speicherinhalt soll sowohl hexadezimal ( printf("%02x ", *ptr); ) als auch (wo möglich) als druckbares ASCII-Zeichen ausgegeben werden. Jede Zeile soll mit einer durch 16 teilbaren Speicheradresse beginnen. Funktionsdeklaration:
-
-void memdump(unsigned char *string, int zeilen)
-
-Als Test für das Speicherabbild soll eine Zeichenkette dienen, die auf der Kommandozeile als Parameter des Programms übergeben wird. Dazu sollte die main-Funktion folgendermaßen deklariert sein:
-
-int main(int argc, char **argv)
-
-Erstellen Sie nun eine Kopie der Zeichenkette auf dem Heap und schreiben Sie eine weitere Funktion, die in der Kopie ein gesuchtes Zeichen durch ein anderes ersetzt. Das zu suchende und zu ersetztende Zeichen, sowie die Anzahl auszugebender Dump-Zeilen, seien weitere Parameter des Programms. Außerdem soll die Funktion sowohl die Anzahl der ausgetauschten Zeichen als auch die letzte Adresse zurückliefern, auf der das Zeichen getauscht wurde:
-
-int memreplace(char *string, char cin, char cout, char **caddr)
-
-Informieren Sie sich hierzu über malloc(), free() und strcpy(). Denken Sie daran, den allozierten Speicher auch wieder freizugeben.
-
-Übersetzen Sie Ihr Programm beispielsweise über folgende Kommandozeile und entfernen Sie evtl. auftretende Warnungen des Compilers:
-
-gcc -Wall -Wextra -pedantic -o a3 a3.c
+ * Sie haben bei der Arbeit mit dem SBC-Debugger ein Speicherabbild (Memorydump) zur Programmanalyse kennengelernt. 
+ * Eine vergleichbare Funktionalität wollen wir nun auf dem PC zur Ausgabe eines Speicherabbildes auf der Konsole realisieren. 
+ * Schreiben Sie hierzu ein Programm mit einer C-Funktion, die als Parameter einen Zeiger auf “unsigned char” sowie die Anzahl 
+ * der auszugebenden Zeilen (zu je 16 Zeichen) erhält. 
+ * Der Speicherinhalt soll sowohl hexadezimal ( printf("%02x ", *ptr); ) als auch (wo möglich) als druckbares ASCII-Zeichen 
+ * ausgegeben werden. Jede Zeile soll mit einer durch 16 teilbaren Speicheradresse beginnen. Funktionsdeklaration:
+ * void memdump(unsigned char *string, int zeilen)
+ * 
+ * Als Test für das Speicherabbild soll eine Zeichenkette dienen, die auf der Kommandozeile als Parameter des Programms übergeben wird. 
+ * Dazu sollte die main-Funktion folgendermaßen deklariert sein:
+ * int main(int argc, char **argv)
+ * 
+ * Erstellen Sie nun eine Kopie der Zeichenkette auf dem Heap und schreiben Sie eine weitere Funktion, 
+ * die in der Kopie ein gesuchtes Zeichen durch ein anderes ersetzt. Das zu suchende und zu ersetztende Zeichen, 
+ * sowie die Anzahl auszugebender Dump-Zeilen, seien weitere Parameter des Programms. 
+ * Außerdem soll die Funktion sowohl die Anzahl der ausgetauschten Zeichen als auch die letzte Adresse zurückliefern, 
+ * auf der das Zeichen getauscht wurde:
+ * int memreplace(char *string, char cin, char cout, char **caddr)
+ * 
+ * Informieren Sie sich hierzu über malloc(), free() und strcpy(). Denken Sie daran, den allozierten Speicher auch wieder freizugeben.
+ * Übersetzen Sie Ihr Programm beispielsweise über folgende Kommandozeile und entfernen Sie evtl. auftretende Warnungen des Compilers:
+ * gcc -Wall -Wextra -pedantic -o a3 a3.c
  */
-// FILE: test_a3.c
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +60,51 @@ void memdump(unsigned char *string, int zeilen) {
         printf("\n");
     }
 }
+/**
+ * Gibt ein Speicherabbild des übergebenen Strings aus und hebt geänderte Zeichen hervor.
+ *
+ * @param string Zeiger auf den Speicher, der abgebildet werden soll.
+ * @param original Zeiger auf den ursprünglichen Speicher, um Änderungen zu erkennen.
+ * @param zeilen Anzahl der auszugebenden Zeilen, jede Zeile enthält 16 Bytes.
+ */
+void memdump_highlight(unsigned char *string, unsigned char *original, int zeilen) {
+    // Header ausgeben
+    printf("\033[31mADDR \t \t00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n");
+    
+    // Über jede Zeile iterieren
+    for (int i = 0; i < zeilen * 16; i += 16) {
+        // Speicheradresse ausgeben
+        printf("\033[0m%p\t", (void *)(string + i));
+        
+        // Hexadezimale Werte des Speicherinhalts ausgeben
+        for (int j = 0; j < 16; j++) {
+            if (string[i + j] != original[i + j]) {
+                // Geänderte Zeichen in grüner Farbe ausgeben
+                printf("\033[32m%02x \033[0m", string[i + j]);
+            } else {
+                printf("%02x ", string[i + j]);
+            }
+        }
+        
+        // Leerzeichen als Trennzeichen ausgeben
+        printf(" ");
+        
+        // ASCII-Darstellung des Speicherinhalts ausgeben
+        for (int j = 0; j < 16; j++) {
+            unsigned char ch = string[i + j];
+            if (string[i + j] != original[i + j]) {
+                // Geänderte Zeichen in grüner Farbe ausgeben
+                printf("\033[32m%c\033[0m", (ch >= 32 && ch <= 126) ? ch : '.');
+            } else {
+                printf("%c", (ch >= 32 && ch <= 126) ? ch : '.');
+            }
+        }
+        
+        // Neue Zeile am Ende jeder Zeile ausgeben
+        printf("\n");
+    }
+}
+
 
 /**
  * Ersetzt alle Vorkommen eines Zeichens in einem String durch ein anderes Zeichen.
@@ -85,6 +132,14 @@ int memreplace(char *string, char cin, char cout, char **caddr) {
     *caddr = last_addr; // Setze die Adresse des letzten ersetzten Zeichens
     return count; // Gib die Anzahl der ersetzten Zeichen zurück
 }
+
+/**
+ * Hauptfunktion des Programms.
+ *
+ * @param argc Anzahl der übergebenen Argumente.
+ * @param argv Array der übergebenen Argumente.
+ * @return 0 bei Erfolg, 1 bei Fehlern.
+ */
 
 int main(int argc, char **argv) {
     if (argc != 5) {
@@ -123,6 +178,9 @@ int main(int argc, char **argv) {
 
     printf("\nSpeicherabbild nach Ersetzung:\n");
     memdump((unsigned char *)heap_copy, zeilen); // Speicherabbild des modifizierten Strings ausgeben
+
+    printf("\nSpeicherabbild nach Ersetzung (geänderte Zeichen hervorgehoben):\n");
+    memdump_highlight((unsigned char *)heap_copy, (unsigned char *)input, zeilen); // Speicherabbild des modifizierten Strings mit Hervorhebung der geänderten Zeichen ausgeben
 
     free(heap_copy); // Allokierten Speicher freigeben
     return 0;
