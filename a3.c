@@ -176,8 +176,8 @@ int main(int argc, char **argv) {
     printf("\nOriginal Speicherabbild:\n");
     memdump((unsigned char *)input, zeilen); // Speicherabbild des Originalstrings ausgeben
 
-    printf("\nSpeicherabbild nach Ersetzung:\n");
-    memdump((unsigned char *)heap_copy, zeilen); // Speicherabbild des modifizierten Strings ausgeben
+    //printf("\nSpeicherabbild nach Ersetzung:\n");
+    //memdump((unsigned char *)heap_copy, zeilen); // Speicherabbild des modifizierten Strings ausgeben
 
     printf("\nSpeicherabbild nach Ersetzung (geänderte Zeichen hervorgehoben):\n");
     memdump_highlight((unsigned char *)heap_copy, (unsigned char *)input, zeilen); // Speicherabbild des modifizierten Strings mit Hervorhebung der geänderten Zeichen ausgeben
