@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 /**
  * Gibt ein Speicherabbild des übergebenen Strings aus.
  *
@@ -37,14 +38,19 @@ void memdump(unsigned char *string, int zeilen) {
     // Header ausgeben
     printf("\033[31mADDR \t \t00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n");
     
+    // Adresse auf das nächste Vielfache von 16 ausrichten
+    uintptr_t addr = (uintptr_t)string;
+    addr &= ~(uintptr_t)0xF; //Bitweise UND-Verknüpfung mit 0xF, um die unteren 4 Bits zu löschen
+    unsigned char *aligned_string = (unsigned char *)addr;
+
     // Über jede Zeile iterieren
     for (int i = 0; i < zeilen * 16; i += 16) {
         // Speicheradresse ausgeben
-        printf("\033[0m%p\t", (void *)(string + i));
+        printf("\033[0m%p\t", (void *)(aligned_string + i));
         
         // Hexadezimale Werte des Speicherinhalts ausgeben
         for (int j = 0; j < 16; j++) {
-            printf("%02x ", string[i + j]);
+            printf("%02x ", aligned_string[i + j]);
         }
         
         // Leerzeichen als Trennzeichen ausgeben
@@ -71,6 +77,11 @@ void memdump_highlight(unsigned char *string, unsigned char *original, int zeile
     // Header ausgeben
     printf("\033[31mADDR \t \t00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n");
     
+    // Adresse auf das nächste Vielfache von 16 ausrichten
+    uintptr_t addr = (uintptr_t)string;
+    addr &= ~(uintptr_t)0xF; //Bitweise UND-Verknüpfung mit 0xF, um die unteren 4 Bits zu löschen
+    unsigned char *aligned_string = (unsigned char *)addr;
+
     // Über jede Zeile iterieren
     for (int i = 0; i < zeilen * 16; i += 16) {
         // Speicheradresse ausgeben
