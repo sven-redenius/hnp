@@ -33,6 +33,10 @@
  *
  * @param string Zeiger auf den Speicher, der abgebildet werden soll.
  * @param zeilen Anzahl der auszugebenden Zeilen, jede Zeile enthält 16 Bytes.
+ * 
+ * @note Die Funktion verwendet ANSI-Escape-Sequenzen, um Farben in der Konsole zu ändern.
+ * @note Die Funktion verwendet die Funktionen memdump und memreplace.
+ * @note Um Adresse nicht bei 0 starten zu lassen, muss aligned_string durch string ersetzt werden.
  */
 void memdump(unsigned char *string, int zeilen) {
     // Header ausgeben
@@ -58,7 +62,7 @@ void memdump(unsigned char *string, int zeilen) {
         
         // ASCII-Darstellung des Speicherinhalts ausgeben
         for (int j = 0; j < 16; j++) {
-            unsigned char ch = string[i + j];
+            unsigned char ch = aligned_string[i + j];
             printf("%c", (ch >= 32 && ch <= 126) ? ch : '.');
         }
         
@@ -107,8 +111,8 @@ void memdump_highlight(unsigned char *string, unsigned char *original, int zeile
         
         // ASCII-Darstellung des Speicherinhalts ausgeben
         for (int j = 0; j < 16; j++) {
-            unsigned char ch = string[i + j];
-            if (string[i + j] != original[i + j]) {
+            unsigned char ch = aligned_string[i + j];
+            if (aligned_string[i + j] != original[i + j]) {
                 // Geänderte Zeichen in grüner Farbe ausgeben
                 printf("\033[32m%c\033[0m", (ch >= 32 && ch <= 126) ? ch : '.');
             } else {
