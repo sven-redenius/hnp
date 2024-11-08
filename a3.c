@@ -72,28 +72,33 @@ void memdump(unsigned char *string, int zeilen) {
  * @param string Zeiger auf den Speicher, der abgebildet werden soll.
  * @param original Zeiger auf den ursprünglichen Speicher, um Änderungen zu erkennen.
  * @param zeilen Anzahl der auszugebenden Zeilen, jede Zeile enthält 16 Bytes.
+ * 
+ * @note Geänderte Zeichen werden in grüner Farbe hervorgehoben.
+ * @note Die Funktion verwendet ANSI-Escape-Sequenzen, um Farben in der Konsole zu ändern.
+ * @note Die Funktion verwendet die Funktionen memdump und memreplace.
+ * @note Um Adresse nicht bei 0 starten zu lassen, muss aligned_string durch string ersetzt werden.
  */
 void memdump_highlight(unsigned char *string, unsigned char *original, int zeilen) {
     // Header ausgeben
     printf("\033[31mADDR \t \t00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  0123456789ABCDEF\n");
     
     // Adresse auf das nächste Vielfache von 16 ausrichten
-    uintptr_t addr = (uintptr_t)string;
+    uintptr_t addr = (uintptr_t)string; 
     addr &= ~(uintptr_t)0xF; //Bitweise UND-Verknüpfung mit 0xF, um die unteren 4 Bits zu löschen
     unsigned char *aligned_string = (unsigned char *)addr;
 
     // Über jede Zeile iterieren
     for (int i = 0; i < zeilen * 16; i += 16) {
         // Speicheradresse ausgeben
-        printf("\033[0m%p\t", (void *)(string + i));
+        printf("\033[0m%p\t", (aligned_string + i));
         
         // Hexadezimale Werte des Speicherinhalts ausgeben
         for (int j = 0; j < 16; j++) {
-            if (string[i + j] != original[i + j]) {
+            if (aligned_string[i + j] != original[i + j]) {
                 // Geänderte Zeichen in grüner Farbe ausgeben
-                printf("\033[32m%02x \033[0m", string[i + j]);
+                printf("\033[32m%02x \033[0m", aligned_string[i + j]);
             } else {
-                printf("%02x ", string[i + j]);
+                printf("%02x ", aligned_string[i + j]);
             }
         }
         
