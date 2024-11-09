@@ -52,6 +52,9 @@ again:
 ; Das wäre z.B. die Abfrage der Tastatur, die Manipulation der Statusbits und 
 ; die Ausgabe an das Display und die LEDs.
 
+	call check_keyboard	; Tastatur abfragen
+	call update_display	; Display und LEDs aktualisieren
+
 	jmp again
 
 
@@ -107,6 +110,11 @@ isr_lt:
 ; Hier ist z.B. der Programmcode einzufügen, um Statusbits zu manipulieren.
 ; Der gemeinsame Ausgang aus der ISR ist "isr1".
 
+	test byte [status], 02h	; Prüfe Bit 1 im Statusbyte
+	jz skip_alarm			; Wenn Bit 1 nicht gesetzt, überspringen
+	call check_keyboard		; Tastatur abfragen
+	call update_display		; Display und LEDs aktualisieren
+
 isr1:
 	mov al, eoi		; EOI an PIC
 	out ocw_2_3, al		; OCW
@@ -121,9 +129,56 @@ isr_timer:
 ; den Lautsprecher anzusteuern. Ausgänge sind auch lesbar!
 ; Der gemeinsame Ausgang aus der ISR ist "isr2".
 
+    test byte [status], 01h	; Prüfe Bit 0 im Statusbyte
+    jz skip_speaker		; Wenn Bit 0 nicht gesetzt, überspringen
+    in al, ppi_a		; Aktuellen Zustand von PPI A lesen
+    xor al, 08h		; PA3 toggeln (Lautsprecher an/aus)
+    out ppi_a, al
+skip_speaker:
+    jmp isr2
+
 isr2:
 	mov al, eoi		; EOI an PIC
 	out ocw_2_3, al		; OCW
 	pop ax
 	iret
+
+	check_keyboard:
+    ; Tastatur abfragen und Statusbits manipulieren
+    mov ah, getkey
+    int 16h			; BIOS Tastatureingabe
+    cmp al, 'A'		; Beispiel: Wenn Taste 'A' gedrückt
+    jne check_reactivate
+    or byte [status], 02h	; Setze Bit 1 im Statusbyte (Alarm deaktiviert)
+    call display_off
+    jmp end_check_keyboard
  
+ check_reactivate:
+    cmp al, 'R'		; Beispiel: Wenn Taste 'R' gedrückt
+    jne end_check_keyboard
+    and byte [status], 0FDh	; Lösche Bit 1 im Statusbyte (Alarm reaktiviert)
+    call display_on
+
+end_check_keyboard:
+    ret
+
+update_display:
+    ; Display und LEDs aktualisieren
+    mov al, [status]
+    out ppi_a, al		; Statusbyte an LEDs ausgeben
+    ret
+
+display_off:
+    mov dx, offset msg_off
+    mov ah, ascii
+    int 21h
+    ret
+
+display_on:
+    mov dx, offset msg_on
+    mov ah, ascii
+    int 21h
+    ret
+
+msg_off db 'OFF', 0
+msg_on db 'ON', 0
